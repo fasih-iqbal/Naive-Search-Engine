@@ -5,7 +5,7 @@ from collections import OrderedDict
 import numpy as np
 
 # Load your subset dataframe
-file_path = r"C:\Users\PC\Documents\Symmester 4\Big Data\Naive-Search-Engine\Naive-Search-Engine\subset.csv"
+file_path = r"C:\Users\PC\Documents\Symmester 4\Big Data\Assignment 2\subset.csv"
 subset_df = pd.read_csv(file_path)
 
 # Function to preprocess text
@@ -13,8 +13,10 @@ subset_df = pd.read_csv(file_path)
 
 def preprocess_text(text):
     if isinstance(text, str):
+        stop_words = set(stopwords.words('english'))
         words = word_tokenize(text)
-        filtered_words = [word.lower() for word in words if word.isalnum()]
+        filtered_words = [word.lower() for word in words if word.isalnum()
+                          and word.lower() not in stop_words]
         return filtered_words
     else:
         return []
@@ -93,7 +95,17 @@ query_vector = [0] * len(corpus)
 for word_idx, tf_value in query_tf.items():
     query_vector[word_idx] = tf_value
 
+# Initialize a list to store relevance scores along with document index
+document_relevance = []
+
 # Calculate relevance between query vector and each document vector
-for i, doc_vector in enumerate(document_vectors[:20], start=1):
+for i, doc_vector in enumerate(document_vectors):
     relevance = calculate_relevance(query_vector, doc_vector)
-    print(f"Relevance between query and document {i}: {relevance}")
+    document_relevance.append((i, relevance))
+
+# Sort the document relevance list by relevance score
+document_relevance.sort(key=lambda x: x[1], reverse=True)
+
+# Display the top 10 relevant documents
+for i, (doc_index, relevance) in enumerate(document_relevance[:10], start=1):
+    print(f"Relevance between query and document {doc_index + 1}: {relevance}")
